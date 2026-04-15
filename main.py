@@ -95,7 +95,7 @@ def main():
     print("电力设备监控智能问答系统 - 知识问答")
     print("="*50)
     
-    question = "变压器有载重瓦斯出口的常见原因是啥"
+    question = "双鉴电源坏了咋办"
     print(f"\n问题: {question}")
     print("正在思考中...")
     result = agent.ask(question)
