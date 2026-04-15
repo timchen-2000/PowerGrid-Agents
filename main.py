@@ -71,7 +71,7 @@ def main():
     
     # 非交互式测试模式
     print("\n测试系统运行状态...")
-    test_question = "什么是电力设备监控？"
+    test_question = "变压器着火了咋办"
     print(f"测试问题: {test_question}")
     result = agent.ask(test_question)
     print(f"回答: {result['answer']}")
