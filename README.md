@@ -67,8 +67,15 @@ pip install -r requirements.txt
 
 ### 2. 配置环境变量
 
-复制 `.env.example` 文件为 `.env`，并填入你的OpenAI API密钥：
+复制 `.env.example` 文件为 `.env`，并填入你的API密钥。支持两种配置方式：
 
+#### 方式1：使用DeepSeek API（推荐）
+```
+OPENAI_API_KEY=your_deepseek_api_key_here
+OPENAI_API_BASE=https://api.deepseek.com/v1
+```
+
+#### 方式2：使用OpenAI API
 ```
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_API_BASE=https://api.openai.com/v1
@@ -104,7 +111,9 @@ python example.py
 
 - **Langchain**：用于构建LLM应用和RAG系统
 - **FAISS**：高效的向量搜索库
-- **OpenAI API**：提供语言模型能力
+- **DeepSeek API**：提供语言模型能力（推荐）
+- **OpenAI API**：提供语言模型能力（可选）
+- **HuggingFace Embeddings**：提供本地嵌入模型能力（可选）
 - **PyPDF**：PDF文档处理
 - **Python**：主要开发语言
 
@@ -119,10 +128,11 @@ python example.py
 
 ## 注意事项
 
-- 需要有效的OpenAI API密钥才能使用系统
+- 需要有效的DeepSeek API或OpenAI API密钥才能使用系统
 - 首次运行会构建向量数据库，可能需要较长时间
 - 系统会自动保存向量数据库，后续运行速度会更快
 - 建议使用Python 3.8+版本
+- 如果遇到网络问题，可以考虑使用本地HuggingFace嵌入模型（在vector_store.py中配置）
 
 ## 许可证
 
