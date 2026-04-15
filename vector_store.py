@@ -4,6 +4,43 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import FakeEmbeddings, HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
+from langchain_core.embeddings import Embeddings
+from openai import OpenAI
+
+
+class QwenEmbeddings(Embeddings):
+    """直接使用千问API的embedding类"""
+    
+    def __init__(self, model: str = "text-embedding-v4", api_key: Optional[str] = None, base_url: Optional[str] = None):
+        self.model = model
+        self.api_key = api_key or os.getenv("DASHSCOPE_API_KEY")
+        self.base_url = base_url or "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        self.client = OpenAI(
+            api_key=self.api_key,
+            base_url=self.base_url
+        )
+    
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """对文档列表进行向量化"""
+        embeddings = []
+        for text in texts:
+            # 确保文本是字符串
+            clean_text = str(text)
+            # 单个文本调用，避免批处理格式问题
+            response = self.client.embeddings.create(
+                model=self.model,
+                input=clean_text
+            )
+            embeddings.append(response.data[0].embedding)
+        return embeddings
+    
+    def embed_query(self, text: str) -> List[float]:
+        """对查询文本进行向量化"""
+        response = self.client.embeddings.create(
+            model=self.model,
+            input=str(text)
+        )
+        return response.data[0].embedding
 
 
 class VectorStoreManager:
@@ -23,10 +60,17 @@ class VectorStoreManager:
                 self.embeddings = FakeEmbeddings(size=128)
         elif embedding_model == "qianwen":
             try:
-                # 直接使用HuggingFace千问模型
-                print("使用HuggingFace千问模型进行向量化...")
-                self.embeddings = HuggingFaceEmbeddings(model_name="Qwen/Qwen2.5-0.5B-Instruct")
-                print("成功初始化千问embedding模型（HuggingFace）")
+                # 使用千问的embedding模型（阿里云百炼API）
+                api_key = os.getenv("DASHSCOPE_API_KEY")
+                if api_key:
+                    self.embeddings = QwenEmbeddings(
+                        model="text-embedding-v4",
+                        api_key=api_key,
+                        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+                    )
+                    print("成功初始化千问embedding模型（阿里云百炼API）")
+                else:
+                    raise ValueError("千问API密钥未配置，请设置DASHSCOPE_API_KEY环境变量")
             except Exception as e:
                 print(f"无法加载千问模型: {e}")
                 print("切换到FakeEmbeddings进行演示")
