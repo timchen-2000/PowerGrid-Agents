@@ -81,57 +81,37 @@ def main():
     
     agent = initialize_system(
         pdf_path, 
-        rebuild=True, 
+        rebuild=False,  # 不重新构建，使用已有向量库
         embedding_model=embedding_model,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap
     )
     
-    # 自动测试模式，模拟用户交互
+    # 测试特定问题
     print("\n" + "="*50)
-    print("电力设备监控智能问答系统 - Agent工具链演示")
+    print("电力设备监控智能问答系统 - 知识问答")
     print("="*50)
-    print("正在演示几个典型问题的回答...")
+    
+    question = "变压器有载重瓦斯出口的常见原因是啥"
+    print(f"\n问题: {question}")
+    print("正在思考中...")
+    result = agent.ask(question)
+    
+    print("\n" + "="*50)
+    print("回答:")
     print("-"*50)
-    
-    # 测试问题列表 - 包含知识问答和工具调用
-    test_questions = [
-        "什么是电力设备监控？",
-        "检查一下变压器#2的状态怎么样",
-        "有哪些未处理的告警？",
-        "最近有什么维护计划？",
-        "帮我确认一下ID为1的告警"
-    ]
-    
-    for i, question in enumerate(test_questions, 1):
-        print(f"\n问题 {i}: {question}")
-        print("正在思考中...")
-        result = agent.ask(question)
-        
-        print("\n" + "="*50)
-        print("回答:")
-        print("-"*50)
-        print(result["answer"])
-        print("="*50)
-        
-        print(f"\n参考来源: {len(result['source_documents'])} 个文档片段")
-        print("-"*50)
-    
-    print("\n" + "="*50)
-    print("多轮对话演示")
+    print(result["answer"])
     print("="*50)
     
-    # 多轮对话演示
-    print("\n问题1: 变压器#2的温度是多少？")
-    result1 = agent.ask("变压器#2的温度是多少？")
-    print("\n回答: " + result1["answer"])
+    print(f"\n参考来源: {len(result['source_documents'])} 个文档片段")
+    if result["source_documents"]:
+        print("-"*50)
+        for i, doc in enumerate(result["source_documents"], 1):
+            print(f"\n参考片段 {i}:")
+            print(doc.page_content[:200] + "..." if len(doc.page_content) > 200 else doc.page_content)
     
-    print("\n问题2: 那它有告警吗？")
-    result2 = agent.ask("那它有告警吗？")
-    print("\n回答: " + result2["answer"])
-    
-    print("\n多轮对话演示完成！")
-    print("\nAgent工具链演示完成！")
+    print("\n" + "="*50)
+    print("知识问答完成！")
 
 
 if __name__ == "__main__":
