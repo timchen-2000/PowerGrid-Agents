@@ -5,11 +5,11 @@ from vector_store import VectorStoreManager
 from qa_agent import PowerEquipmentQAAgent
 
 
-def initialize_system(pdf_path: str, rebuild: bool = False):
+def initialize_system(pdf_path: str, rebuild: bool = False, embedding_model: str = "fake"):
     load_dotenv()
     
     doc_processor = DocumentProcessor()
-    vector_manager = VectorStoreManager()
+    vector_manager = VectorStoreManager(embedding_model=embedding_model)
     
     db_exists = os.path.exists("./faiss_db")
     
@@ -18,7 +18,7 @@ def initialize_system(pdf_path: str, rebuild: bool = False):
         documents = doc_processor.process_pdf(pdf_path)
         print(f"文档分割完成，共 {len(documents)} 个片段")
         
-        print("正在构建向量数据库...")
+        print(f"正在使用 {embedding_model} 模型构建向量数据库...")
         vector_manager.create_from_documents(documents)
         vector_manager.save_local()
         print("向量数据库构建完成并已保存")
@@ -67,7 +67,9 @@ def main():
         print(f"错误: PDF文件不存在: {pdf_path}")
         return
     
-    agent = initialize_system(pdf_path, rebuild=False)
+    # 选择embedding模型: fake, openai, huggingface, qianwen
+    embedding_model = "qianwen"  # 使用千问模型
+    agent = initialize_system(pdf_path, rebuild=True, embedding_model=embedding_model)
     
     # 自动测试模式，模拟用户交互
     print("\n" + "="*50)
