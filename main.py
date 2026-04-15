@@ -95,7 +95,7 @@ def main():
     print("电力设备监控智能问答系统 - 知识问答")
     print("="*50)
     
-    question = "双鉴电源坏了咋办"
+    question = "完了完了，妈的六号报警器火灾预警了，一直亮着红灯，咋办咋办"
     print(f"\n问题: {question}")
     print("正在思考中...")
     result = agent.ask(question)
