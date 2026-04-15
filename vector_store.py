@@ -23,8 +23,10 @@ class VectorStoreManager:
                 self.embeddings = FakeEmbeddings(size=128)
         elif embedding_model == "qianwen":
             try:
-                # 尝试使用千问的embedding模型
+                # 直接使用HuggingFace千问模型
+                print("使用HuggingFace千问模型进行向量化...")
                 self.embeddings = HuggingFaceEmbeddings(model_name="Qwen/Qwen2.5-0.5B-Instruct")
+                print("成功初始化千问embedding模型（HuggingFace）")
             except Exception as e:
                 print(f"无法加载千问模型: {e}")
                 print("切换到FakeEmbeddings进行演示")
