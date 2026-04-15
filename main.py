@@ -67,16 +67,37 @@ def main():
         print(f"错误: PDF文件不存在: {pdf_path}")
         return
     
-    agent = initialize_system(pdf_path, rebuild=True)
+    agent = initialize_system(pdf_path, rebuild=False)
     
-    # 非交互式测试模式
-    print("\n测试系统运行状态...")
-    test_question = "变压器着火了咋办"
-    print(f"测试问题: {test_question}")
-    result = agent.ask(test_question)
-    print(f"回答: {result['answer']}")
-    print(f"参考来源: {len(result['source_documents'])} 个文档片段")
-    print("\n系统运行正常！")
+    # 自动测试模式，模拟用户交互
+    print("\n" + "="*50)
+    print("电力设备监控智能问答系统 - 演示模式")
+    print("="*50)
+    print("正在演示几个典型问题的回答...")
+    print("-"*50)
+    
+    # 测试问题列表
+    test_questions = [
+        "什么是电力设备监控？",
+        "变压器着火了咋办？",
+        "电容器保护装置告警怎么办？"
+    ]
+    
+    for i, question in enumerate(test_questions, 1):
+        print(f"\n问题 {i}: {question}")
+        print("正在思考中...")
+        result = agent.ask(question)
+        
+        print("\n" + "="*50)
+        print("回答:")
+        print("-"*50)
+        print(result["answer"])
+        print("="*50)
+        
+        print(f"\n参考来源: {len(result['source_documents'])} 个文档片段")
+        print("-"*50)
+    
+    print("\n演示完成！")
 
 
 if __name__ == "__main__":
