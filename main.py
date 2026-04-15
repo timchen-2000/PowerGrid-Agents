@@ -83,7 +83,7 @@ def main():
     
     agent = initialize_system(
         pdf_path, 
-        rebuild=False,  # 只在首次运行时重建，后续直接加载
+        rebuild=True,  # 重建向量数据库，添加BM25检索器
         embedding_model=embedding_model,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,

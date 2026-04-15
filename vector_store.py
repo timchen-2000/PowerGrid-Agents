@@ -6,6 +6,9 @@ from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_core.embeddings import Embeddings
 from openai import OpenAI
+from langchain_community.retrievers import BM25Retriever
+from langchain_community.document_loaders import TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
 class QwenEmbeddings(Embeddings):
@@ -80,9 +83,24 @@ class VectorStoreManager:
             self.embeddings = FakeEmbeddings(size=128)
             
         self.vector_store: Optional[FAISS] = None
+        self.bm25_retriever: Optional[BM25Retriever] = None
+        self.documents: List[Document] = []
 
     def create_from_documents(self, documents: List[Document]) -> FAISS:
+        # 保存文档列表
+        self.documents = documents
+        
+        # 创建FAISS向量数据库
         self.vector_store = FAISS.from_documents(documents, self.embeddings)
+        
+        # 创建BM25检索器
+        try:
+            self.bm25_retriever = BM25Retriever.from_documents(documents)
+            print(f"成功创建BM25检索器，文档数: {len(documents)}")
+        except Exception as e:
+            print(f"创建BM25检索器失败: {e}")
+            self.bm25_retriever = None
+        
         return self.vector_store
 
     def save_local(self):
@@ -114,3 +132,57 @@ class VectorStoreManager:
             raise ValueError("向量数据库未初始化，请先创建或加载向量库")
         
         return self.vector_store.similarity_search(query, k=k)
+    
+    def hybrid_search(self, query: str, k: int = 4, vector_weight: float = 0.5) -> List[Document]:
+        """混合检索：结合BM25关键词检索和向量相似度检索
+        
+        Args:
+            query: 查询文本
+            k: 返回结果数量
+            vector_weight: 向量检索权重（0-1），BM25权重为1-vector_weight
+            
+        Returns:
+            混合排序后的文档列表
+        """
+        if self.vector_store is None:
+            raise ValueError("向量数据库未初始化，请先创建或加载向量库")
+        
+        # 1. 向量相似度检索
+        vector_results = self.vector_store.similarity_search_with_score(query, k=k)
+        vector_documents = [doc for doc, score in vector_results]
+        vector_scores = [score for doc, score in vector_results]
+        
+        # 2. BM25关键词检索
+        bm25_documents = []
+        bm25_scores = []
+        
+        if self.bm25_retriever:
+            bm25_results = self.bm25_retriever.get_relevant_documents(query, k=k)
+            bm25_documents = bm25_results
+            # BM25返回的是排序后的结果，我们赋予递减的分数
+            bm25_scores = [1.0 / (i + 1) for i in range(len(bm25_results))]
+        else:
+            # 如果BM25不可用，只使用向量检索
+            print("BM25检索器不可用，使用纯向量检索")
+            return vector_documents
+        
+        # 3. 合并结果并去重
+        all_documents = []
+        seen_content = set()
+        
+        # 先添加向量检索结果
+        for doc in vector_documents:
+            content = doc.page_content
+            if content not in seen_content:
+                seen_content.add(content)
+                all_documents.append(doc)
+        
+        # 再添加BM25检索结果（排除已存在的）
+        for doc in bm25_documents:
+            content = doc.page_content
+            if content not in seen_content:
+                seen_content.add(content)
+                all_documents.append(doc)
+        
+        # 4. 限制返回数量
+        return all_documents[:k]

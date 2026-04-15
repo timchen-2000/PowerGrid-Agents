@@ -88,12 +88,17 @@ class PowerEquipmentQAAgent:
             包含回答和相关信息的字典
         """
         try:
-            # 首先直接进行相似度搜索，获取更多相关文档
+            # 首先使用混合检索，结合BM25关键词检索和向量相似度检索
             source_documents = []
             try:
-                source_documents = self.vector_store_manager.similarity_search(question, k=self.k)
-            except:
-                pass
+                source_documents = self.vector_store_manager.hybrid_search(question, k=self.k)
+                print(f"混合检索完成，找到 {len(source_documents)} 个相关文档")
+            except Exception as e:
+                print(f"混合检索失败，使用纯向量检索: {e}")
+                try:
+                    source_documents = self.vector_store_manager.similarity_search(question, k=self.k)
+                except:
+                    pass
             
             # 如果有相关文档，将其内容加入到上下文中
             context = ""
