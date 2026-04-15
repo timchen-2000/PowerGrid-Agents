@@ -88,22 +88,29 @@ class PowerEquipmentQAAgent:
             包含回答和相关信息的字典
         """
         try:
+            # 首先直接进行相似度搜索，获取更多相关文档
+            source_documents = []
+            try:
+                source_documents = self.vector_store_manager.similarity_search(question, k=self.k)
+            except:
+                pass
+            
+            # 如果有相关文档，将其内容加入到上下文中
+            context = ""
+            if source_documents:
+                context = "以下是相关的知识库信息：\n"
+                for i, doc in enumerate(source_documents, 1):
+                    context += f"\n【文档片段{i}】\n{doc.page_content}\n"
+            
             # 调用Agent执行器
             result = self.agent_executor.invoke({
-                "input": question,
+                "input": question + ("\n\n" + context if context else ""),
                 "chat_history": self.chat_history
             })
             
             # 更新对话历史
             self.chat_history.append(HumanMessage(content=question))
             self.chat_history.append(AIMessage(content=result["output"]))
-            
-            # 尝试获取相关文档（如果Agent没有使用知识库工具）
-            source_documents = []
-            try:
-                source_documents = self.vector_store_manager.similarity_search(question, k=self.k)
-            except:
-                pass
             
             return {
                 "question": question,

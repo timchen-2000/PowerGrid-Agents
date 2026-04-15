@@ -5,7 +5,7 @@ from vector_store import VectorStoreManager
 from qa_agent import PowerEquipmentQAAgent
 
 
-def initialize_system(pdf_path: str, rebuild: bool = False, embedding_model: str = "fake", chunk_size: int = 1000, chunk_overlap: int = 200):
+def initialize_system(pdf_path: str, rebuild: bool = False, embedding_model: str = "fake", chunk_size: int = 1000, chunk_overlap: int = 200, search_k: int = 4):
     load_dotenv()
     
     doc_processor = DocumentProcessor(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
@@ -27,7 +27,7 @@ def initialize_system(pdf_path: str, rebuild: bool = False, embedding_model: str
         vector_manager.load_local()
         print("向量数据库加载完成")
     
-    agent = PowerEquipmentQAAgent(vector_manager)
+    agent = PowerEquipmentQAAgent(vector_manager, k=search_k)
     return agent
 
 
@@ -67,24 +67,27 @@ def main():
         print(f"错误: PDF文件不存在: {pdf_path}")
         return
     
-    # 配置选项
+    # 配置选项 - 优化检索效果
     embedding_model = "qianwen"  # 选择embedding模型: fake, openai, huggingface, qianwen
-    chunk_size = 1000  # 文本块大小（字符数）
-    chunk_overlap = 200  # 文本块重叠大小（字符数）
+    chunk_size = 500  # 减小chunk大小，提高检索精度
+    chunk_overlap = 100  # 调整重叠大小
+    search_k = 8  # 增加检索结果数量
     
     print(f"="*50)
     print("系统配置:")
     print(f"  - Embedding模型: {embedding_model}")
     print(f"  - Chunk大小: {chunk_size}字符")
     print(f"  - Chunk重叠: {chunk_overlap}字符")
+    print(f"  - 检索结果数: {search_k}")
     print(f"="*50)
     
     agent = initialize_system(
         pdf_path, 
-        rebuild=False,  # 不重新构建，使用已有向量库
+        rebuild=True,  # 重新构建向量库，使用新的chunk配置
         embedding_model=embedding_model,
         chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap
+        chunk_overlap=chunk_overlap,
+        search_k=search_k
     )
     
     # 测试特定问题
@@ -108,7 +111,7 @@ def main():
         print("-"*50)
         for i, doc in enumerate(result["source_documents"], 1):
             print(f"\n参考片段 {i}:")
-            print(doc.page_content[:200] + "..." if len(doc.page_content) > 200 else doc.page_content)
+            print(doc.page_content)
     
     print("\n" + "="*50)
     print("知识问答完成！")
