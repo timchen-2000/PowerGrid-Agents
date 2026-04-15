@@ -5,10 +5,10 @@ from vector_store import VectorStoreManager
 from qa_agent import PowerEquipmentQAAgent
 
 
-def initialize_system(pdf_path: str, rebuild: bool = False, embedding_model: str = "fake"):
+def initialize_system(pdf_path: str, rebuild: bool = False, embedding_model: str = "fake", chunk_size: int = 1000, chunk_overlap: int = 200):
     load_dotenv()
     
-    doc_processor = DocumentProcessor()
+    doc_processor = DocumentProcessor(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     vector_manager = VectorStoreManager(embedding_model=embedding_model)
     
     db_exists = os.path.exists("./faiss_db")
@@ -67,9 +67,25 @@ def main():
         print(f"错误: PDF文件不存在: {pdf_path}")
         return
     
-    # 选择embedding模型: fake, openai, huggingface, qianwen
-    embedding_model = "qianwen"  # 使用千问模型
-    agent = initialize_system(pdf_path, rebuild=True, embedding_model=embedding_model)
+    # 配置选项
+    embedding_model = "qianwen"  # 选择embedding模型: fake, openai, huggingface, qianwen
+    chunk_size = 1000  # 文本块大小（字符数）
+    chunk_overlap = 200  # 文本块重叠大小（字符数）
+    
+    print(f"="*50)
+    print("系统配置:")
+    print(f"  - Embedding模型: {embedding_model}")
+    print(f"  - Chunk大小: {chunk_size}字符")
+    print(f"  - Chunk重叠: {chunk_overlap}字符")
+    print(f"="*50)
+    
+    agent = initialize_system(
+        pdf_path, 
+        rebuild=True, 
+        embedding_model=embedding_model,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
+    )
     
     # 自动测试模式，模拟用户交互
     print("\n" + "="*50)
