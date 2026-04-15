@@ -32,7 +32,7 @@
 ## 🛠️ 系统架构
 
 <div align="center">
-  <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=system%20architecture%20flowchart%20for%20power%20equipment%20monitoring%20AI%20system%20RAG%20hybrid%20search%20rerank%20agent%20tool%20calling%20blue%20professional%20diagram&image_size=landscape_16_9" alt="系统架构流程图" width="800">
+  <img src="images/stream.png" alt="系统架构流程图" width="800">
 </div>
 
 ```
