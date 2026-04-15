@@ -67,9 +67,9 @@ def main():
         print(f"错误: PDF文件不存在: {pdf_path}")
         return
     
-    agent = initialize_system(pdf_path, rebuild=False)
+    agent = initialize_system(pdf_path, rebuild=True)
     
-    # 非交互式模式，测试系统是否正常运行
+    # 非交互式测试模式
     print("\n测试系统运行状态...")
     test_question = "什么是电力设备监控？"
     print(f"测试问题: {test_question}")

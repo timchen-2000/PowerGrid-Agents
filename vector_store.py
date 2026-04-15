@@ -9,7 +9,10 @@ from langchain_core.vectorstores import VectorStoreRetriever
 class VectorStoreManager:
     def __init__(self, persist_directory: str = "./faiss_db"):
         self.persist_directory = persist_directory
-        # 使用FakeEmbeddings，避免网络连接
+        # 注意：这里使用FakeEmbeddings用于演示
+        # 在实际使用时，请改为真实的embedding模型，例如：
+        # - OpenAIEmbeddings() (需要OpenAI API密钥)
+        # - HuggingFaceEmbeddings(model_name="shibing624/text2vec-base-chinese") (需要网络连接)
         self.embeddings = FakeEmbeddings(size=128)
         self.vector_store: Optional[FAISS] = None
 
