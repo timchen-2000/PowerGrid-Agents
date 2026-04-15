@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=power%20equipment%20monitoring%20system%20logo%20futuristic%20high-tech%20blue%20yellow%20electric%20grid%20icon&image_size=square_hd" alt="电力设备监控智能问答系统Logo" width="200">
+  <img src="images/logo.jpg" alt="电力设备监控智能问答系统Logo" width="400">
   <h1>电力设备监控智能问答系统</h1>
 </div>
 
