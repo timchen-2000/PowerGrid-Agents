@@ -83,11 +83,11 @@ def main():
     
     agent = initialize_system(
         pdf_path, 
-        rebuild=True,  # 重新构建向量库，使用新的chunk配置
+        rebuild=False,  # 只在首次运行时重建，后续直接加载
         embedding_model=embedding_model,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
-        search_k=search_k
+        search_k=3  # 只选择前3个最相关的chunk
     )
     
     # 测试特定问题
