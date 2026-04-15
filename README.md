@@ -1,4 +1,7 @@
-# 电力设备监控智能问答系统
+<div align="center">
+  <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=power%20equipment%20monitoring%20system%20logo%20futuristic%20high-tech%20blue%20yellow%20electric%20grid%20icon&image_size=square_hd" alt="电力设备监控智能问答系统Logo" width="200">
+  <h1>电力设备监控智能问答系统</h1>
+</div>
 
 ## 🎖️ 项目简介
 
@@ -27,6 +30,10 @@
 - **模块化设计**：清晰的代码结构，易于扩展和维护
 
 ## 🛠️ 系统架构
+
+<div align="center">
+  <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=system%20architecture%20flowchart%20for%20power%20equipment%20monitoring%20AI%20system%20RAG%20hybrid%20search%20rerank%20agent%20tool%20calling%20blue%20professional%20diagram&image_size=landscape_16_9" alt="系统架构流程图" width="800">
+</div>
 
 ```
 用户查询
