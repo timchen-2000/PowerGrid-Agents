@@ -68,7 +68,15 @@ def main():
         return
     
     agent = initialize_system(pdf_path, rebuild=False)
-    interactive_qa(agent)
+    
+    # 非交互式模式，测试系统是否正常运行
+    print("\n测试系统运行状态...")
+    test_question = "什么是电力设备监控？"
+    print(f"测试问题: {test_question}")
+    result = agent.ask(test_question)
+    print(f"回答: {result['answer']}")
+    print(f"参考来源: {len(result['source_documents'])} 个文档片段")
+    print("\n系统运行正常！")
 
 
 if __name__ == "__main__":

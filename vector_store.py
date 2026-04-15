@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
 from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import FakeEmbeddings
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 
@@ -9,7 +9,8 @@ from langchain_core.vectorstores import VectorStoreRetriever
 class VectorStoreManager:
     def __init__(self, persist_directory: str = "./faiss_db"):
         self.persist_directory = persist_directory
-        self.embeddings = OpenAIEmbeddings()
+        # 使用FakeEmbeddings，避免网络连接
+        self.embeddings = FakeEmbeddings(size=128)
         self.vector_store: Optional[FAISS] = None
 
     def create_from_documents(self, documents: List[Document]) -> FAISS:
