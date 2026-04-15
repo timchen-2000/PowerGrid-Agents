@@ -88,17 +88,25 @@ class PowerEquipmentQAAgent:
             包含回答和相关信息的字典
         """
         try:
-            # 首先使用混合检索，结合BM25关键词检索和向量相似度检索
+            # 使用完整的召回-重排流程：先召回Top K → 再Rerank → 再取重排后的Top N
             source_documents = []
             try:
-                source_documents = self.vector_store_manager.hybrid_search(question, k=self.k)
-                print(f"混合检索完成，找到 {len(source_documents)} 个相关文档")
+                # 先召回更多文档，再重排
+                top_k = 8  # 初始召回数量
+                top_n = self.k  # 最终返回数量
+                source_documents = self.vector_store_manager.hybrid_search_with_rerank(question, top_k=top_k, top_n=top_n)
+                print(f"召回-重排流程完成，最终选择 {len(source_documents)} 个相关文档")
             except Exception as e:
-                print(f"混合检索失败，使用纯向量检索: {e}")
+                print(f"召回-重排流程失败，使用混合检索: {e}")
                 try:
-                    source_documents = self.vector_store_manager.similarity_search(question, k=self.k)
-                except:
-                    pass
+                    source_documents = self.vector_store_manager.hybrid_search(question, k=self.k)
+                    print(f"混合检索完成，找到 {len(source_documents)} 个相关文档")
+                except Exception as e2:
+                    print(f"混合检索失败，使用纯向量检索: {e2}")
+                    try:
+                        source_documents = self.vector_store_manager.similarity_search(question, k=self.k)
+                    except:
+                        pass
             
             # 如果有相关文档，将其内容加入到上下文中
             context = ""

@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import FakeEmbeddings, HuggingFaceEmbeddings
 from langchain_core.documents import Document
@@ -9,6 +9,7 @@ from openai import OpenAI
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 
 
 class QwenEmbeddings(Embeddings):
@@ -186,3 +187,75 @@ class VectorStoreManager:
         
         # 4. 限制返回数量
         return all_documents[:k]
+    
+    def rerank(self, query: str, documents: List[Document], top_n: int = 3) -> List[Document]:
+        """对检索结果进行重排
+        
+        Args:
+            query: 查询文本
+            documents: 待重排的文档列表
+            top_n: 重排后返回的文档数量
+            
+        Returns:
+            重排后的文档列表
+        """
+        if not documents:
+            return []
+        
+        try:
+            # 使用更精细的embedding模型进行重排
+            # 这里使用BGE模型，效果较好
+            rerank_embeddings = HuggingFaceBgeEmbeddings(
+                model_name="BAAI/bge-small-zh-v1.5",
+                model_kwargs={"device": "cpu"},
+                encode_kwargs={"normalize_embeddings": True}
+            )
+            
+            # 计算查询向量
+            query_embedding = rerank_embeddings.embed_query(query)
+            
+            # 计算每个文档与查询的相似度
+            doc_embeddings = rerank_embeddings.embed_documents([doc.page_content for doc in documents])
+            
+            # 计算余弦相似度
+            from numpy import dot
+            from numpy.linalg import norm
+            
+            similarities = []
+            for i, doc_embedding in enumerate(doc_embeddings):
+                similarity = dot(query_embedding, doc_embedding) / (norm(query_embedding) * norm(doc_embedding))
+                similarities.append((documents[i], similarity))
+            
+            # 按相似度排序
+            similarities.sort(key=lambda x: x[1], reverse=True)
+            
+            # 返回前top_n个
+            reranked_documents = [doc for doc, _ in similarities[:top_n]]
+            print(f"重排完成，从 {len(documents)} 个文档中选择前 {top_n} 个")
+            
+            return reranked_documents
+        except Exception as e:
+            print(f"重排失败，使用原始排序: {e}")
+            # 失败时返回原始文档的前top_n个
+            return documents[:top_n]
+    
+    def hybrid_search_with_rerank(self, query: str, top_k: int = 8, top_n: int = 3) -> List[Document]:
+        """混合检索 + 重排：完整的召回-重排流程
+        
+        Args:
+            query: 查询文本
+            top_k: 初始召回数量
+            top_n: 重排后返回数量
+            
+        Returns:
+            重排后的文档列表
+        """
+        # 1. 召回 Top K
+        retrieved_docs = self.hybrid_search(query, k=top_k)
+        print(f"初始召回 {len(retrieved_docs)} 个文档")
+        
+        # 2. 重排
+        reranked_docs = self.rerank(query, retrieved_docs, top_n=top_n)
+        
+        # 3. 返回重排后的 Top N
+        return reranked_docs
