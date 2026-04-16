@@ -56,8 +56,6 @@ def interactive_qa(agent):
         print("-"*50)
         print(result["answer"])
         print("="*50)
-        
-        print(f"\n参考来源: {len(result['source_documents'])} 个文档片段")
 
 
 def main():
@@ -83,31 +81,15 @@ def main():
     
     agent = initialize_system(
         pdf_path, 
-        rebuild=True,  # 重建向量数据库，添加BM25检索器
+        rebuild=False,  # 不重建，使用已有的向量数据库
         embedding_model=embedding_model,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
         search_k=3  # 只选择前3个最相关的chunk
     )
     
-    # 测试特定问题
-    print("\n" + "="*50)
-    print("电力设备监控智能问答系统 - 知识问答")
-    print("="*50)
-    
-    question = "完了完了，妈的六号报警器火灾预警了，一直亮着红灯，咋办咋办"
-    print(f"\n问题: {question}")
-    print("正在思考中...")
-    result = agent.ask(question)
-    
-    print("\n" + "="*50)
-    print("回答:")
-    print("-"*50)
-    print(result["answer"])
-    print("="*50)
-    
-    print("\n" + "="*50)
-    print("知识问答完成！")
+    # 启动交互式问答
+    interactive_qa(agent)
 
 
 if __name__ == "__main__":

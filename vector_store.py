@@ -120,6 +120,22 @@ class VectorStoreManager:
             self.embeddings,
             allow_dangerous_deserialization=True
         )
+        
+        # 从向量存储中获取文档并重新创建BM25检索器
+        try:
+            # 获取所有文档（使用一个通用查询获取所有文档）
+            self.documents = self.vector_store.similarity_search("电力设备监控", k=1000)
+            
+            if self.documents:
+                self.bm25_retriever = BM25Retriever.from_documents(self.documents)
+                print(f"成功重新创建BM25检索器，文档数: {len(self.documents)}")
+            else:
+                print("无法获取文档，BM25检索器不可用")
+                self.bm25_retriever = None
+        except Exception as e:
+            print(f"创建BM25检索器失败: {e}")
+            self.bm25_retriever = None
+        
         return self.vector_store
 
     def get_retriever(self, k: int = 4) -> VectorStoreRetriever:
