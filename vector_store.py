@@ -110,6 +110,13 @@ class VectorStoreManager:
         
         os.makedirs(self.persist_directory, exist_ok=True)
         self.vector_store.save_local(self.persist_directory)
+        
+        # 保存文档列表到文件
+        import pickle
+        docs_path = os.path.join(self.persist_directory, "documents.pkl")
+        with open(docs_path, "wb") as f:
+            pickle.dump(self.documents, f)
+        print(f"文档已保存到: {docs_path}")
 
     def load_local(self) -> FAISS:
         if not os.path.exists(self.persist_directory):
@@ -121,10 +128,19 @@ class VectorStoreManager:
             allow_dangerous_deserialization=True
         )
         
-        # 从向量存储中获取文档并重新创建BM25检索器
+        # 从保存的文件中加载文档并重新创建BM25检索器
         try:
-            # 获取所有文档（使用一个通用查询获取所有文档）
-            self.documents = self.vector_store.similarity_search("电力设备监控", k=1000)
+            # 尝试从文件加载文档
+            import pickle
+            docs_path = os.path.join(self.persist_directory, "documents.pkl")
+            if os.path.exists(docs_path):
+                with open(docs_path, "rb") as f:
+                    self.documents = pickle.load(f)
+                print(f"从文件加载文档成功，文档数: {len(self.documents)}")
+            else:
+                # 如果文件不存在，使用相似度搜索获取文档
+                print("文档文件不存在，使用相似度搜索获取文档...")
+                self.documents = self.vector_store.similarity_search("电力设备监控", k=1000)
             
             if self.documents:
                 self.bm25_retriever = BM25Retriever.from_documents(self.documents)
