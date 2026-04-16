@@ -1,7 +1,6 @@
 from typing import Optional, Dict, List, Any
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
-from langchain.agents import AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.tools import Tool
@@ -34,12 +33,6 @@ class PowerEquipmentQAAgent:
         
         # 创建Agent
         self.agent = self._build_agent()
-        self.agent_executor = AgentExecutor(
-            agent=self.agent,
-            tools=self.tools,
-            verbose=True,
-            handle_parsing_errors=True
-        )
     
     def _build_agent(self):
         """构建Agent，包含RAG和工具调用能力"""
@@ -71,7 +64,7 @@ class PowerEquipmentQAAgent:
         ])
         
         # 创建Agent
-        agent = create_agent(
+        agent = create_react_agent(
             llm=self.llm,
             tools=self.tools,
             prompt=prompt
@@ -117,10 +110,11 @@ class PowerEquipmentQAAgent:
                 for i, doc in enumerate(source_documents, 1):
                     context += f"\n【文档片段{i}】\n{doc.page_content}\n"
             
-            # 调用Agent执行器
-            result = self.agent_executor.invoke({
+            # 调用Agent
+            result = self.agent.invoke({
                 "input": question + ("\n\n" + context if context else ""),
-                "chat_history": self.chat_history
+                "chat_history": self.chat_history,
+                "tools": self.tools
             })
             
             # 更新对话历史

@@ -68,7 +68,7 @@ def main():
         return
     
     # 配置选项 - 优化检索效果
-    embedding_model = "qianwen"  # 选择embedding模型: fake, openai, huggingface, qianwen
+    embedding_model = "huggingface"  # 选择embedding模型: fake, openai, huggingface, qianwen
     chunk_size = 500  # 减小chunk大小，提高检索精度
     chunk_overlap = 100  # 调整重叠大小
     search_k = 8  # 增加检索结果数量
