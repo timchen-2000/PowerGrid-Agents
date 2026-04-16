@@ -35,9 +35,10 @@ async def startup_event():
         vector_manager = VectorStoreManager(embedding_model="qianwen")
         
         # 加载或创建向量数据库
-        if vector_manager.load_local():
+        try:
+            vector_manager.load_local()
             print("向量数据库加载完成")
-        else:
+        except FileNotFoundError:
             print("向量数据库不存在，正在构建...")
             documents = doc_processor.process_pdf("变电设备监控信息释义及处置原则.pdf")
             vector_manager.create_from_documents(documents)
