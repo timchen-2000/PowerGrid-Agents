@@ -1,6 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import sys
+import os
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
+
 sys.path.append('/workspace')
 from document_processor import DocumentProcessor
 from vector_store import VectorStoreManager
