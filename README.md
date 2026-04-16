@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="images/logo.jpg" alt="电力设备监控智能问答系统Logo" width="400">
+  <img src="images/logo.png" alt="电力设备监控智能问答系统Logo" width="400">
   <h1>电力设备监控智能问答系统</h1>
 </div>
 
@@ -32,7 +32,7 @@
 ## 🛠️ 系统架构
 
 <div align="center">
-  <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=system%20architecture%20flowchart%20for%20power%20equipment%20monitoring%20AI%20system%20RAG%20hybrid%20search%20rerank%20agent%20tool%20calling%20blue%20professional%20diagram&image_size=landscape_16_9" alt="系统架构流程图" width="800">
+  <img src="images/stream.png" alt="系统架构流程图" width="800">
 </div>
 
 ```
@@ -121,3 +121,131 @@ python main.py
 | top_n | 最终返回数量 | 3 |
 | embedding_model | Embedding模型 | 千问 |
 | LLM | 大语言模型 | DeepSeek |
+
+## 🚀 FastAPI服务
+
+### 启动服务
+
+```bash
+# 安装依赖
+pip install -r requirements.txt
+
+# 运行FastAPI服务
+python app.py
+```
+
+服务将在 `http://0.0.0.0:8000` 上运行。
+
+### API接口
+
+#### 1. 智能问答
+- **接口**：`POST /ask`
+- **请求体**：
+  ```json
+  {
+    "question": "变压器温度过高怎么办？",
+    "conversation_id": "default"
+  }
+  ```
+- **响应**：
+  ```json
+  {
+    "answer": "专业的回答内容",
+    "source_documents": [
+      {
+        "content": "相关文档片段内容...",
+        "metadata": {}
+      }
+    ],
+    "conversation_id": "default",
+    "status": "success"
+  }
+  ```
+
+#### 2. 健康检查
+- **接口**：`GET /health`
+- **响应**：
+  ```json
+  {
+    "status": "healthy",
+    "service": "power-equipment-agent",
+    "system_initialized": true
+  }
+  ```
+
+#### 3. 系统信息
+- **接口**：`GET /info`
+- **响应**：
+  ```json
+  {
+    "name": "电力设备监控智能问答系统",
+    "version": "1.0.0",
+    "features": [
+      "基于RAG架构的智能问答",
+      "混合检索（BM25 + 向量）",
+      "智能工具调用",
+      "多轮对话能力",
+      "应急处理指导",
+      "国产大模型集成"
+    ],
+    "system_initialized": true
+  }
+  ```
+
+#### 4. 清空对话历史
+- **接口**：`POST /clear_history`
+- **响应**：
+  ```json
+  {
+    "status": "success",
+    "message": "对话历史已清空"
+  }
+  ```
+
+### API文档
+
+访问 `http://localhost:8000/docs` 可以查看交互式API文档，测试所有接口。
+
+## 📡 客户端调用示例
+
+### Python示例
+
+```python
+import requests
+
+# 智能问答
+response = requests.post(
+    "http://localhost:8000/ask",
+    json={
+        "question": "变压器有载重瓦斯出口的常见原因是啥",
+        "conversation_id": "user123"
+    }
+)
+print(response.json())
+
+# 健康检查
+response = requests.get("http://localhost:8000/health")
+print(response.json())
+
+# 清空对话历史
+response = requests.post("http://localhost:8000/clear_history")
+print(response.json())
+```
+
+### cURL示例
+
+```bash
+# 智能问答
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "变压器温度过高怎么办？", "conversation_id": "default"}'
+
+# 健康检查
+curl http://localhost:8000/health
+
+# 系统信息
+curl http://localhost:8000/info
+
+# 清空对话历史
+curl -X POST http://localhost:8000/clear_history
+```
