@@ -106,13 +106,6 @@ def main():
     print(result["answer"])
     print("="*50)
     
-    print(f"\n参考来源: {len(result['source_documents'])} 个文档片段")
-    if result["source_documents"]:
-        print("-"*50)
-        for i, doc in enumerate(result["source_documents"], 1):
-            print(f"\n参考片段 {i}:")
-            print(doc.page_content)
-    
     print("\n" + "="*50)
     print("知识问答完成！")
 
