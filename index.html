@@ -220,6 +220,26 @@
         // API基础URL
         const API_BASE = 'http://localhost:8000';
         
+        // 测试API连接
+        async function testApiConnection() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    console.log('API连接正常');
+                } else {
+                    console.log('API连接失败:', response.status);
+                }
+            } catch (error) {
+                console.log('API连接错误:', error);
+            }
+        }
+        
+        // 页面加载时测试API连接
+        window.onload = function() {
+            testApiConnection();
+            init();
+        };
+        
         // 对话历史
         let chatHistory = [];
         let conversationId = 'default';
@@ -334,8 +354,7 @@
             return loadingDiv;
         }
         
-        // 页面加载完成后初始化
-        window.onload = init;
+
     </script>
 </body>
 </html>

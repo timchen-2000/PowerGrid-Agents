@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sys
 import os
@@ -21,6 +22,15 @@ app = FastAPI(
     title="电力设备监控智能问答系统",
     description="基于RAG架构的电力设备监控专业AI助手，集成混合检索、智能工具调用和多轮对话能力",
     version="1.0.0"
+)
+
+# 配置CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 生产环境应该设置具体的域名
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # 全局组件实例
