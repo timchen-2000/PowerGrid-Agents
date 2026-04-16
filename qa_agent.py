@@ -1,8 +1,10 @@
 from typing import Optional, Dict, List, Any
 from langchain_openai import ChatOpenAI
-from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.agents import create_agent
+from langchain.agents import AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.tools import Tool
 from vector_store import VectorStoreManager
 from power_equipment_tools import get_tools
 
@@ -68,8 +70,8 @@ class PowerEquipmentQAAgent:
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ])
         
-        # 创建OpenAI Tools Agent
-        agent = create_openai_tools_agent(
+        # 创建Agent
+        agent = create_agent(
             llm=self.llm,
             tools=self.tools,
             prompt=prompt

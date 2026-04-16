@@ -8,7 +8,7 @@ from langchain_core.embeddings import Embeddings
 from openai import OpenAI
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 
 
