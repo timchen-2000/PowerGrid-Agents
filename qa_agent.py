@@ -64,10 +64,11 @@ class PowerEquipmentQAAgent:
         ])
         
         # 创建Agent
-        agent = create_react_agent(
-            llm=self.llm,
+        system_prompt = "你是一位电力设备监控领域的专业专家助手。你的职责是帮助用户解决电力设备监控相关的问题。\n\n你可以使用以下能力：\n1. **知识检索**：基于电力设备监控知识库回答专业问题\n2. **设备状态检查**：查询电力设备的实时运行状态\n3. **告警查询**：查看和筛选设备告警信息\n4. **维护计划管理**：查看、创建和管理设备维护计划\n\n当用户提问时，请遵循以下步骤：\n1. 首先判断是否需要使用工具，还是可以直接回答\n2. 如果需要检查设备状态、查询告警或管理维护计划，请使用相应的工具\n3. 如果是专业知识问题，可以基于知识库回答\n4. 可以结合多种能力，提供全面的解决方案\n\n回答要求：\n1. 基于提供的信息回答，不要编造内容\n2. 回答要专业、准确、详细\n3. 使用中文回答\n4. 保持友好、专业的态度"
+        agent = create_agent(
+            model=self.llm,
             tools=self.tools,
-            prompt=prompt
+            system_prompt=system_prompt
         )
         
         return agent
@@ -110,20 +111,37 @@ class PowerEquipmentQAAgent:
                 for i, doc in enumerate(source_documents, 1):
                     context += f"\n【文档片段{i}】\n{doc.page_content}\n"
             
+            # 构建输入消息
+            messages = []
+            for msg in self.chat_history:
+                if isinstance(msg, HumanMessage):
+                    messages.append({"role": "user", "content": msg.content})
+                elif isinstance(msg, AIMessage):
+                    messages.append({"role": "assistant", "content": msg.content})
+            
+            # 添加当前问题
+            messages.append({"role": "user", "content": question + ("\n\n" + context if context else "")})
+            
             # 调用Agent
-            result = self.agent.invoke({
-                "input": question + ("\n\n" + context if context else ""),
-                "chat_history": self.chat_history,
-                "tools": self.tools
-            })
+            inputs = {"messages": messages}
+            result = self.agent.invoke(inputs)
+            
+            # 获取回答
+            answer = ""
+            if result and "messages" in result:
+                for msg in result["messages"]:
+                    if isinstance(msg, AIMessage) or (isinstance(msg, dict) and msg.get("role") == "assistant"):
+                        answer = msg.content if isinstance(msg, AIMessage) else msg.get("content", "")
+                        break
             
             # 更新对话历史
             self.chat_history.append(HumanMessage(content=question))
-            self.chat_history.append(AIMessage(content=result["output"]))
+            if answer:
+                self.chat_history.append(AIMessage(content=answer))
             
             return {
                 "question": question,
-                "answer": result["output"],
+                "answer": answer,
                 "source_documents": source_documents
             }
         except Exception as e:

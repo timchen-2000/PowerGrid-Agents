@@ -164,7 +164,7 @@ class PowerEquipmentTools:
 
 def get_tools() -> List[Dict[str, Any]]:
     """获取工具列表，用于Langchain Agent"""
-    from langchain.tools import StructuredTool
+    from langchain_core.tools import StructuredTool
     
     tools = PowerEquipmentTools()
     

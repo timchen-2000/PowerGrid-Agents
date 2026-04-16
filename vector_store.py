@@ -158,7 +158,7 @@ class VectorStoreManager:
         bm25_scores = []
         
         if self.bm25_retriever:
-            bm25_results = self.bm25_retriever.get_relevant_documents(query, k=k)
+            bm25_results = self.bm25_retriever.invoke(query)
             bm25_documents = bm25_results
             # BM25返回的是排序后的结果，我们赋予递减的分数
             bm25_scores = [1.0 / (i + 1) for i in range(len(bm25_results))]
