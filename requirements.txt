@@ -21,6 +21,9 @@ transformers==5.5.4
 sentence-transformers==5.4.1
 huggingface-hub==1.10.2
 
+# 检索相关
+rank-bm25==0.2.2
+
 # Web服务
 fastapi==0.135.3
 uvicorn==0.44.0
