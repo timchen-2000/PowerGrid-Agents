@@ -22,7 +22,8 @@ pip install -r requirements.txt
 ```
 
 ### 2. 配置API密钥
-编辑 `.env` 文件，填入API密钥：
+1. 复制 `.env.example` 文件并重命名为 `.env`
+2. 编辑 `.env` 文件，填入API密钥：
 ```
 OPENAI_API_KEY=your_deepseek_api_key
 OPENAI_API_BASE=https://api.deepseek.com/v1
