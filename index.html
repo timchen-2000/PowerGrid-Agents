@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>电力设备监控智能问答系统</title>
+    <!-- Markdown解析库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -175,6 +177,78 @@
             border-radius: 0 4px 4px 0;
         }
         
+        /* Markdown样式 */
+        .message-content h1, .message-content h2, .message-content h3, .message-content h4, .message-content h5, .message-content h6 {
+            margin: 10px 0 5px 0;
+            color: #333;
+        }
+        
+        .message-content h1 {
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .message-content h2 {
+            font-size: 16px;
+        }
+        
+        .message-content h3 {
+            font-size: 14px;
+        }
+        
+        .message-content p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .message-content ul, .message-content ol {
+            margin: 8px 0 8px 20px;
+        }
+        
+        .message-content li {
+            margin: 4px 0;
+        }
+        
+        .message-content strong, .message-content b {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .message-content em, .message-content i {
+            font-style: italic;
+        }
+        
+        .message-content code {
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            font-size: 13px;
+        }
+        
+        .message-content pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+        
+        .message-content blockquote {
+            border-left: 4px solid #2196f3;
+            padding-left: 10px;
+            margin: 8px 0;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .message-content hr {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 10px 0;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 margin: 0;
@@ -329,7 +403,15 @@
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            contentDiv.innerHTML = content;
+            
+            // 解析Markdown格式
+            if (type === 'bot') {
+                // 对于AI回答，使用marked解析Markdown
+                contentDiv.innerHTML = marked.parse(content);
+            } else {
+                // 对于用户消息，直接显示
+                contentDiv.textContent = content;
+            }
             
             const timeDiv = document.createElement('div');
             timeDiv.className = 'message-time';
