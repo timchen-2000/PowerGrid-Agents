@@ -57,6 +57,10 @@ Agent工具调用 → 设备状态检查、告警处理
 ├── qa_agent.py           # Agent实现，工具调用和对话管理
 ├── power_equipment_tools.py # 电力设备专用工具集
 ├── document_processor.py  # PDF文档处理和切分
+├── app.py                # FastAPI后端服务
+├── index.html            # 前端聊天界面
+├── start.sh              # 启动脚本（Linux/Mac）
+├── start.bat             # 启动脚本（Windows）
 ├── .env                  # API配置文件
 ├── requirements.txt      # 项目依赖
 └── README.md             # 项目说明
@@ -74,26 +78,50 @@ pip install -r requirements.txt
 2. **配置API密钥**
 编辑 `.env` 文件：
 ```
-# DeepSeek API（用于LLM）
+# OpenAI API配置（DeepSeek）
 OPENAI_API_KEY=your_deepseek_api_key
 OPENAI_API_BASE=https://api.deepseek.com/v1
 
-# 千问API（用于Embedding）
+# 千问API配置（阿里云百炼）
 DASHSCOPE_API_KEY=your_qianwen_api_key
 ```
 
 ### 运行系统
+
+#### 方法1：使用启动脚本（推荐）
+
+**Linux/Mac**：
+```bash
+./start.sh
+```
+
+**Windows**：
+```bash
+start.bat
+```
+
+#### 方法2：手动运行
 
 1. **首次运行**（构建向量数据库）
 ```bash
 python main.py
 ```
 
-2. **后续运行**（直接加载向量库）
-修改 `main.py` 中的 `rebuild=False`，然后运行：
+2. **运行后端服务**
 ```bash
-python main.py
+python app.py
 ```
+
+3. **运行前端服务**
+```bash
+python -m http.server 3000
+```
+
+## 🌐 访问地址
+
+- **后端服务**：http://localhost:8000
+- **API文档**：http://localhost:8000/docs
+- **前端界面**：http://localhost:3000
 
 ## 🎯 功能演示
 
@@ -123,18 +151,6 @@ python main.py
 | LLM | 大语言模型 | DeepSeek |
 
 ## 🚀 FastAPI服务
-
-### 启动服务
-
-```bash
-# 安装依赖
-pip install -r requirements.txt
-
-# 运行FastAPI服务
-python app.py
-```
-
-服务将在 `http://0.0.0.0:8000` 上运行。
 
 ### API接口
 
@@ -249,3 +265,36 @@ curl http://localhost:8000/info
 # 清空对话历史
 curl -X POST http://localhost:8000/clear_history
 ```
+
+## 📱 前端界面使用
+
+1. 打开浏览器，访问 `http://localhost:3000`
+2. 在输入框中输入您的问题，例如："变压器温度过高怎么办？"
+3. 点击"发送"按钮或按Enter键提交问题
+4. 系统会返回专业的回答，显示在聊天界面中
+
+## 🔧 故障排除
+
+### 1. 端口占用
+- **问题**：端口8000或3000被占用
+- **解决方案**：停止占用端口的进程，或修改服务端口
+
+### 2. API密钥配置
+- **问题**：系统提示API密钥未配置
+- **解决方案**：确保在 `.env` 文件中正确配置了API密钥
+
+### 3. 向量数据库构建
+- **问题**：首次运行时向量数据库构建失败
+- **解决方案**：确保PDF文档存在且格式正确
+
+### 4. 前端连接问题
+- **问题**：前端无法连接到后端API
+- **解决方案**：检查后端服务是否正常运行，确保网络连接正常
+
+## 📄 许可证
+
+本项目采用 MIT 许可证。
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
