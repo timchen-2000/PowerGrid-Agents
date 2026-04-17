@@ -40,29 +40,74 @@ print(completion.model_dump_json())
 
 ## 技术实现
 
-### Embedding实现
-- **模型**：使用千问模型（text-embedding-v4）作为embedding模型
-- **API调用**：通过OpenAI兼容接口调用阿里云百炼服务
-- **向量维度**：1536维向量
-- **存储**：使用FAISS向量数据库进行高效存储和检索
+### 系统架构流程图
 
-### 前后端技术
-- **后端**：FastAPI框架，提供RESTful API接口
-- **前端**：HTML5 + CSS3 + JavaScript，使用marked.js实现Markdown解析
-- **通信**：前后端通过HTTP POST请求进行数据交互
-- **CORS**：配置跨域资源共享，支持前端访问后端API
+```mermaid
+flowchart TD
+    subgraph 数据输入
+        A[PDF文档] -->|文档处理| B[文档片段化]
+        C[用户查询] -->|输入| D[前端界面]
+    end
 
-### RAG增强检索
-- **混合检索**：BM25关键词检索 + FAISS向量相似度检索
-- **重排**：使用BGE模型对检索结果进行重排
-- **召回策略**：综合考虑关键词匹配和语义相似度
-- **上下文管理**：实现多轮对话的上下文理解和记忆
+    subgraph 核心处理
+        B -->|Embedding| E[千问模型text-embedding-v4]
+        E -->|1536维向量| F[FAISS向量数据库]
+        C -->|关键词检索| G[BM25检索器]
+        C -->|向量检索| F
+        G -->|检索结果| H[混合检索]
+        F -->|检索结果| H
+        H -->|重排| I[BGE重排模型]
+        I -->|Top-K结果| J[上下文构建]
+        J -->|输入| K[大模型DeepSeek/千问]
+        K -->|生成回答| L[回答处理]
+    end
 
-### 部署方案
-- **启动脚本**：提供start.sh（Linux/Mac）和start.bat（Windows）
-- **依赖管理**：使用requirements.txt管理Python依赖
-- **环境配置**：通过.env文件配置API密钥
-- **服务端口**：后端服务8000端口，前端服务3000端口
+    subgraph 部署与交互
+        D -->|HTTP POST| M[FastAPI后端]
+        M -->|调用| J
+        L -->|返回| M
+        M -->|响应| D
+        N[.env配置] -->|API密钥| K
+        N -->|API密钥| E
+    end
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style C fill:#f9f,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style E fill:#bfb,stroke:#333,stroke-width:2px
+    style F fill:#bfb,stroke:#333,stroke-width:2px
+    style G fill:#bfb,stroke:#333,stroke-width:2px
+    style H fill:#bfb,stroke:#333,stroke-width:2px
+    style I fill:#bfb,stroke:#333,stroke-width:2px
+    style K fill:#ffb,stroke:#333,stroke-width:2px
+    style M fill:#ffb,stroke:#333,stroke-width:2px
+```
+
+### 核心技术组件
+
+#### Embedding实现
+- **模型**：千问模型（text-embedding-v4）
+- **API**：OpenAI兼容接口（阿里云百炼）
+- **向量维度**：1536维
+- **存储**：FAISS向量数据库
+
+#### 前后端技术
+- **后端**：FastAPI框架
+- **前端**：HTML5 + CSS3 + JavaScript
+- **Markdown解析**：marked.js
+- **通信**：HTTP POST请求
+- **CORS**：跨域资源共享配置
+
+#### RAG增强检索
+- **混合检索**：BM25 + FAISS向量检索
+- **重排**：BGE模型
+- **上下文管理**：多轮对话记忆
+
+#### 部署方案
+- **启动脚本**：start.sh（Linux/Mac）、start.bat（Windows）
+- **依赖管理**：requirements.txt
+- **环境配置**：.env文件
+- **服务端口**：后端8000，前端3000
 
 ## 快速开始
 
