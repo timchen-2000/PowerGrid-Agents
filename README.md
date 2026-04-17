@@ -1,4 +1,7 @@
-# 电力设备监控智能问答系统
+<div align="center">
+  <img src="images/logo.png" alt="电力设备监控智能问答系统Logo" width="400">
+  <h1>电力设备监控智能问答系统</h1>
+</div>
 
 ## 项目简介
 
