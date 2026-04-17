@@ -134,7 +134,7 @@ class PowerEquipmentQAAgent:
                         answer = msg.content if isinstance(msg, AIMessage) else msg.get("content", "")
                         break
             
-            # 简化回答，去掉不必要的格式
+            # 优化回答格式，保留标准Markdown
             if answer:
                 # 去掉开头的引导语
                 if "根据您提供的知识库信息，我来为您详细分析" in answer:
@@ -142,26 +142,8 @@ class PowerEquipmentQAAgent:
                 if "根据知识库信息，我来为您详细分析" in answer:
                     answer = answer.replace("根据知识库信息，我来为您详细分析", "")
                 
-                # 去掉不必要的标题
-                answer = answer.replace("## 问题分析：", "")
-                answer = answer.replace("### 信息释义", "**信息释义**")
-                answer = answer.replace("### 常见原因分析", "\n**常见原因**")
-                answer = answer.replace("### 监控人员处置方法", "\n**处置方法**")
-                answer = answer.replace("### 建议立即采取的措施", "\n**建议措施**")
-                
-                # 简化列表格式
-                answer = answer.replace("1. **", "- ")
-                answer = answer.replace("2. **", "- ")
-                answer = answer.replace("3. **", "- ")
-                answer = answer.replace("4. **", "- ")
-                answer = answer.replace("5. **", "- ")
-                answer = answer.replace("6. **", "- ")
-                
-                # 去掉列表项中的加粗标记
-                answer = answer.replace("**", "")
-                
-                # 去掉多余的空行
-                answer = '\n'.join([line for line in answer.split('\n') if line.strip()])
+                # 优化标题格式
+                answer = answer.replace("## 问题分析：", "## 问题分析")
             
             # 更新对话历史
             self.chat_history.append(HumanMessage(content=question))
