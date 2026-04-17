@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电力设备监控智能问答系统 v2.0</title>
+    <!-- Markdown解析库和代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.12/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        console.log('UI v2.0 脚本正在加载...');
+    </script>
+    <style>
+        :root {
+            --primary-color: #007bff; /* 更现代的蓝色 */
+            --primary-hover: #0056b3; /* 鼠标悬停时的深蓝色 */
+            --bg-color: #f8f9fa; /* 浅灰色背景 */
+            --text-color: #212529; /* 深色文本 */
+            --bot-bubble: #ffffff; /* 机器人消息气泡白色 */
+            --user-bubble: #e9f5ff; /* 用户消息气泡浅蓝色 */
+            --system-bg: #d4edda; /* 系统信息背景绿色 */
+            --system-border: #28a745; /* 系统信息边框绿色 */
+            --system-text: #155724; /* 系统信息文本深绿色 */
+        }
+
+        /* 深色模式 */
+        body.dark-mode {
+            --bg-color: #212529; /* 深色背景 */
+            --text-color: #e2e6ea; /* 浅色文本 */
+            --bot-bubble: #343a40; /* 机器人消息气泡深灰色 */
+            --user-bubble: #004085; /* 用户消息气泡深蓝色 */
+            --system-bg: #1e3c72; /* 系统信息背景深蓝色 */
+            --system-border: #007bff; /* 系统信息边框蓝色 */
+            --system-text: #e9f5ff; /* 系统信息文本浅蓝色 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            height: 100vh;
+            background-color: var(--bot-bubble); /* 容器背景使用机器人气泡色 */
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* 更明显的阴影 */
+            border-radius: 12px; /* 增加圆角 */
+            overflow: hidden; /* 确保内容不溢出圆角 */
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #007bff, #0056b3); /* 渐变色使用主色调 */
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* 头部阴影 */
+            z-index: 10;
+        }
+        
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .header-text h1 {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+        
+        .header-text p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            scroll-behavior: smooth;
+        }
+        
+        .message {
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            align-items: flex-end;
+        }
+        
+        .user-message .message-content {
+            background-color: var(--user-bubble);
+            color: #1565c0;
+            border-radius: 18px 18px 4px 18px;
+            border: 1px solid #bbdefb;
+        }
+        
+        .bot-message {
+            align-items: flex-start;
+        }
+        
+        .bot-message .message-content {
+            background-color: var(--bot-bubble);
+            color: #333;
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+            width: 100%;
+            max-width: 90%;
+        }
+        
+        .message-content {
+            padding: 12px 18px;
+            word-wrap: break-word;
+            font-size: 15px;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 6px;
+            padding: 0 5px;
+        }
+        
+        .input-container {
+            padding: 15px 25px 25px;
+            border-top: 1px solid #eee;
+            background-color: white;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            background-color: #f5f5f5;
+            padding: 8px 15px;
+            border-radius: 24px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            background-color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+        
+        #question-input {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            resize: none;
+            min-height: 24px;
+            max-height: 150px;
+            font-family: inherit;
+            outline: none;
+        }
+        
+        #send-button {
+            width: 36px;
+            height: 36px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        #send-button:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
+        }
+        
+        #send-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+        }
+        
+        #send-button:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(33, 150, 243, 0.2);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .system-info {
+            background-color: var(--system-bg);
+            border-left: 4px solid var(--system-border);
+            padding: 12px 18px;
+            margin: 10px 0 20px 0;
+            font-size: 14px;
+            color: var(--system-text);
+            border-radius: 4px;
+            line-height: 1.5;
+        }
+        
+        /* Markdown 增强样式 */
+        .message-content h1, .message-content h2, .message-content h3 {
+            margin: 15px 0 10px 0;
+            color: #1a237e;
+            font-weight: 600;
+        }
+        
+        .message-content h1 { font-size: 1.4em; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .message-content h2 { font-size: 1.25em; }
+        .message-content h3 { font-size: 1.1em; }
+        
+        .message-content p {
+            margin-bottom: 12px;
+            line-height: 1.7;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .message-content ul, .message-content ol {
+            margin: 10px 0 10px 25px;
+        }
+        
+        .message-content li {
+            margin-bottom: 6px;
+        }
+        
+        .message-content strong {
+            color: #000;
+            font-weight: 600;
+            background-color: rgba(33, 150, 243, 0.05);
+            padding: 0 2px;
+        }
+        
+        .message-content code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #d81b60;
+        }
+        
+        .message-content pre {
+            background-color: #282c34;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            color: #abb2bf;
+        }
+
+        .message-content pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+            font-size: 13px;
+        }
+        
+        .message-content blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding: 10px 15px;
+            background-color: #f9f9f9;
+            margin: 15px 0;
+            color: #555;
+            font-style: italic;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .message-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .message-content th, .message-content td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .message-content th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .message-content tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        /* 深色模式 */
+        body.dark-mode {
+            --bg-color: #282c34;
+            --text-color: #e0e0e0;
+            --bot-bubble: #3a3f4b;
+            --user-bubble: #2a5298;
+            --system-bg: #3a4a3a;
+            --system-border: #66bb6a;
+            --system-text: #a5d6a7;
+            color: var(--text-color);
+        }
+
+        body.dark-mode .container {
+            background-color: #21252b;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .chat-container {
+            background-color: #282c34;
+        }
+
+        body.dark-mode .message-content {
+            color: var(--text-color);
+        }
+
+        body.dark-mode .user-message .message-content {
+            border-color: #1e3c72;
+        }
+
+        body.dark-mode .bot-message .message-content {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border-color: #3a3f4b;
+        }
+
+        body.dark-mode .message-time {
+            color: #a0a0a0;
+        }
+
+        body.dark-mode .input-wrapper {
+            background-color: #3a3f4b;
+            border-color: #4a4f5b;
+        }
+
+        body.dark-mode .input-wrapper:focus-within {
+            background-color: #3a3f4b;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+        }
+
+        body.dark-mode #question-input {
+            color: var(--text-color);
+        }
+
+        body.dark-mode .message-content h1,
+        body.dark-mode .message-content h2,
+        body.dark-mode .message-content h3 {
+            color: #bbdefb;
+        }
+
+        body.dark-mode .message-content strong {
+            color: #e0e0e0;
+            background-color: rgba(33, 150, 243, 0.2);
+        }
+
+        body.dark-mode .message-content code {
+            background-color: #4a4f5b;
+            color: #f06292;
+        }
+
+        body.dark-mode .message-content pre {
+            background-color: #1e2127;
+        }
+
+        body.dark-mode .message-content blockquote {
+            background-color: #3a3f4b;
+            color: #b0b0b0;
+            border-left-color: var(--primary-color);
+        }
+
+        body.dark-mode .message-content th {
+            background-color: #4a4f5b;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .message-content tr:nth-child(even) {
+            background-color: #3a3f4b;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+                height: 100vh;
+            }
+            .bot-message .message-content {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-info">
+                <div class="logo">⚡</div>
+                <div class="header-text">
+                    <h1>电力设备监控智能问答系统</h1>
+                    <p>基于 RAG 架构的专业 AI 助手</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle-btn" title="切换主题" style="background:none; border:none; color:white; cursor:pointer; opacity:0.8; margin-right: 10px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <button id="clear-btn" title="清空对话" style="background:none; border:none; color:white; cursor:pointer; opacity:0.8;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="chat-container" id="chat-container">
+            <div class="system-info">
+                👋 欢迎使用电力设备监控智能问答系统！我是您的专业电力设备助手，可以为您提供：<br>
+                • <strong>知识检索</strong>：基于电力设备监控知识库回答专业问题<br>
+                • <strong>状态查询</strong>：查询电力设备的实时运行状态<br>
+                • <strong>告警分析</strong>：查看和筛选设备告警信息<br>
+                • <strong>维护管理</strong>：查看、创建和管理设备维护计划
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea 
+                    id="question-input" 
+                    placeholder="请输入您的问题，例如：变压器着火了咋办？"
+                    rows="1"
+                ></textarea>
+                <button id="send-button" title="发送消息">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 配置 marked
+        const renderer = new marked.Renderer();
+        marked.setOptions({
+            renderer: renderer,
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            },
+            langPrefix: 'hljs language-',
+            breaks: true,
+            gfm: true
+        });
+
+        // API基础URL
+        const API_BASE = 'http://localhost:8000';
+        
+        // 对话历史
+        let conversationId = 'default';
+        
+        // DOM元素
+        const chatContainer = document.getElementById('chat-container');
+        const questionInput = document.getElementById('question-input');
+        const sendButton = document.getElementById('send-button');
+        const clearBtn = document.getElementById('clear-btn');
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        
+        // 初始化
+        function init() {
+            // 监听输入事件
+            questionInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // 监听发送按钮点击
+            sendButton.addEventListener('click', sendMessage);
+            
+            // 监听清空按钮
+            clearBtn.addEventListener('click', clearHistory);
+
+            // 监听主题切换按钮
+            themeToggleBtn.addEventListener('click', toggleTheme);
+            
+            // 自适应输入框高度
+            questionInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+            });
+
+            // 聚焦输入框
+            questionInput.focus();
+
+            // 加载保存的主题
+            loadTheme();
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateThemeToggleIcon(isDarkMode);
+        }
+
+        // 加载主题
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            updateThemeToggleIcon(savedTheme === 'dark');
+        }
+
+        // 更新主题切换图标
+        function updateThemeToggleIcon(isDarkMode) {
+            if (isDarkMode) {
+                themeToggleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+            } else {
+                themeToggleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+            }
+        }
+        
+        // 清空历史
+        async function clearHistory() {
+            if (confirm('确定要清空对话历史吗？')) {
+                try {
+                    await fetch(`${API_BASE}/clear_history`, { method: 'POST' });
+                    chatContainer.innerHTML = `
+                        <div class="system-info">
+                            👋 对话已清空。我是您的专业电力设备助手，请问有什么可以帮您？
+                        </div>
+                    `;
+                } catch (e) {
+                    console.error('清空失败:', e);
+                }
+            }
+        }
+        
+        // 发送消息
+        async function sendMessage() {
+            const question = questionInput.value.trim();
+            if (!question) return;
+            
+            // 禁用发送
+            sendButton.disabled = true;
+            
+            // 显示用户消息
+            addMessage('user', question);
+            
+            // 清空输入框
+            questionInput.value = '';
+            questionInput.style.height = 'auto';
+            
+            // 显示加载状态
+            const loadingElement = addLoading();
+            
+            try {
+                // 发送请求到API
+                const response = await fetch(`${API_BASE}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        conversation_id: conversationId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API请求失败');
+                }
+                
+                const data = await response.json();
+                
+                // 移除加载状态
+                if (loadingElement) loadingElement.remove();
+                
+                // 显示AI回答
+                addMessage('bot', data.answer);
+                
+                // 更新对话ID
+                conversationId = data.conversation_id;
+                
+            } catch (error) {
+                if (loadingElement) loadingElement.remove();
+                console.error('错误:', error);
+                addMessage('bot', '❌ **系统错误**\n\n抱歉，系统暂时无法处理您的请求。请检查后端服务是否正常启动。\n\n`' + error.message + '`');
+            } finally {
+                sendButton.disabled = false;
+                questionInput.focus();
+            }
+        }
+        
+        // 添加消息到聊天界面
+        function addMessage(type, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            // 解析Markdown格式
+            if (type === 'bot') {
+                try {
+                    if (window.marked) {
+                        const parseFn = typeof marked.parse === 'function' ? marked.parse : marked;
+                        contentDiv.innerHTML = parseFn(content);
+                    } else {
+                        console.error('marked.js 未加载');
+                        contentDiv.textContent = content;
+                    }
+                } catch (e) {
+                    console.error('Markdown解析错误:', e);
+                    contentDiv.textContent = content;
+                }
+            } else {
+                contentDiv.textContent = content;
+            }
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            const now = new Date();
+            timeDiv.textContent = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(timeDiv);
+            
+            chatContainer.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // 添加加载状态
+        function addLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.innerHTML = '<span>正在思考</span><div class="spinner"></div>';
+            
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            return loadingDiv;
+        }
+        
+        // 初始化应用
+        init();
+    </script>
+</body>
+</html>

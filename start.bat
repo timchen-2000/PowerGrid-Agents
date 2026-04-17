@@ -10,8 +10,9 @@ start "FastAPI后端" cmd /k "python app.py"
 
 timeout /t 3 /nobreak >nul
 
-echo [2/2] 启动前端HTTP服务器...
-start "前端界面" cmd /k "python -m http.server 3000"
+echo [2/2] 启动前端界面...
+start "前端界面" "http://localhost:3000/chat.html"
+python -m http.server 3000
 
 echo.
 echo ========================================
