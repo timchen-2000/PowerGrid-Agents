@@ -49,5 +49,4 @@ DASHSCOPE_API_KEY=your_qianwen_api_key
 - 向量数据库：确保PDF文档存在且格式正确
 - 前端连接：检查后端服务是否正常运行
 
-## 许可证
-MIT 许可证
+
