@@ -43,7 +43,7 @@ print(completion.model_dump_json())
 ### 系统架构流程图
 
 <div align="center">
-  <img src="images/architecture.png" alt="电力设备监控智能问答系统技术架构图" width="1000">
+  <img src="images/architecture.jpg" alt="电力设备监控智能问答系统技术架构图" width="1000">
 </div>
 
 ### 核心技术组件
