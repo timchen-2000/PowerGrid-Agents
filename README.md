@@ -42,46 +42,9 @@ print(completion.model_dump_json())
 
 ### 系统架构流程图
 
-```mermaid
-flowchart TD
-    subgraph 数据输入
-        A[PDF文档] -->|文档处理| B[文档片段化]
-        C[用户查询] -->|输入| D[前端界面]
-    end
-
-    subgraph 核心处理
-        B -->|Embedding| E[千问模型text-embedding-v4]
-        E -->|1536维向量| F[FAISS向量数据库]
-        C -->|关键词检索| G[BM25检索器]
-        C -->|向量检索| F
-        G -->|检索结果| H[混合检索]
-        F -->|检索结果| H
-        H -->|重排| I[BGE重排模型]
-        I -->|Top-K结果| J[上下文构建]
-        J -->|输入| K[大模型DeepSeek/千问]
-        K -->|生成回答| L[回答处理]
-    end
-
-    subgraph 部署与交互
-        D -->|HTTP POST| M[FastAPI后端]
-        M -->|调用| J
-        L -->|返回| M
-        M -->|响应| D
-        N[.env配置] -->|API密钥| K
-        N -->|API密钥| E
-    end
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#f9f,stroke:#333,stroke-width:2px
-    style D fill:#bbf,stroke:#333,stroke-width:2px
-    style E fill:#bfb,stroke:#333,stroke-width:2px
-    style F fill:#bfb,stroke:#333,stroke-width:2px
-    style G fill:#bfb,stroke:#333,stroke-width:2px
-    style H fill:#bfb,stroke:#333,stroke-width:2px
-    style I fill:#bfb,stroke:#333,stroke-width:2px
-    style K fill:#ffb,stroke:#333,stroke-width:2px
-    style M fill:#ffb,stroke:#333,stroke-width:2px
-```
+<div align="center">
+  <img src="images/architecture.png" alt="电力设备监控智能问答系统技术架构图" width="1000">
+</div>
 
 ### 核心技术组件
 
