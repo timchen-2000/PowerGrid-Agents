@@ -102,10 +102,34 @@ DASHSCOPE_API_KEY=your_qianwen_api_key
 - API文档：http://localhost:8000/docs
 - 前端界面：http://localhost:3000
 
+## RAGAS评估工具
+
+### 简介
+使用RAGAS框架对RAG系统进行专业评估，测试检索和生成效果。
+
+### 评估指标
+- **Faithfulness（忠实度）**：答案是否忠实于检索到的上下文
+- **Answer Relevance（答案相关性）**：答案与问题的相关程度
+- **Context Relevance（上下文相关性）**：检索到的上下文与问题的相关程度
+
+### 安装评估依赖
+```bash
+pip install ragas datasets
+```
+
+### 运行评估
+```bash
+python ragas_simple.py
+```
+
+### 评估结果
+评估完成后会自动保存结果到 `ragas_results.csv` 文件。
+
 ## 故障排除
 - 端口占用：停止占用端口的进程
 - API密钥：确保在 `.env` 文件中正确配置
 - 向量数据库：确保PDF文档存在且格式正确
 - 前端连接：检查后端服务是否正常运行
+- 评估依赖：确保已安装 `ragas` 和 `datasets` 库
 
 
